@@ -22,7 +22,7 @@ export function ProductSearchCombobox({
       (product) =>
         product.name.toLowerCase().includes(term) ||
         product.sku.toLowerCase().includes(term) ||
-        (product.barcode ?? \"\").toLowerCase().includes(term)
+        (product.barcode ?? "").toLowerCase().includes(term)
     );
   }, [products, query]);
 
