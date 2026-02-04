@@ -16,6 +16,7 @@ export type ProductFilters = {
 export function useProducts(filters: ProductFilters = {}) {
   return useQuery({
     queryKey: ["products", filters],
+    staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const supabase = createClient();
 
@@ -83,6 +84,7 @@ export function useProducts(filters: ProductFilters = {}) {
 export function useProduct(id: string) {
   return useQuery({
     queryKey: ["product", id],
+    staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const supabase = createClient();
       const { data, error } = await supabase.from("products").select("*").eq("id", id).single();

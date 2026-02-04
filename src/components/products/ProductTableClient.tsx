@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StockBadge } from "@/components/products/StockBadge";
+import { ProductCard } from "@/components/products/ProductCard";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { Product, Category } from "@/types/database.types";
 import { useDeleteProduct } from "@/hooks/useProducts";
@@ -40,82 +41,108 @@ export function ProductTableClient({
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Producto</TableHead>
-          <TableHead>SKU</TableHead>
-          <TableHead>Barcode</TableHead>
-          <TableHead>Categoría</TableHead>
-          <TableHead>Precio</TableHead>
-          <TableHead>Stock</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {products.map((product) => {
-          const category = product.category_id ? categoryMap.get(product.category_id) : null;
-          return (
-            <TableRow key={product.id}>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <div className="relative h-10 w-10 overflow-hidden rounded-md bg-muted">
-                    {product.image_url ? (
-                      <Image src={product.image_url} alt={product.name} fill className="object-cover" />
-                    ) : null}
-                  </div>
-                  <div>
-                    <div className="font-medium">{product.name}</div>
-                    <div className="text-xs text-muted-foreground">{product.unit}</div>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="font-mono text-xs">{product.sku}</TableCell>
-              <TableCell className="text-xs text-muted-foreground">{product.barcode ?? "-"}</TableCell>
-              <TableCell>
-                {category ? (
-                  <span
-                    className="inline-flex items-center gap-2 rounded-full bg-muted px-2 py-1 text-xs"
-                  >
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: category.color ?? "#3B82F6" }} />
-                    {category.name}
-                  </span>
-                ) : (
-                  "-"
-                )}
-              </TableCell>
-              <TableCell>{formatCurrency(Number(product.selling_price))}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <StockBadge currentStock={product.current_stock} minThreshold={product.min_stock_threshold} />
-                  <span className="text-xs text-muted-foreground">{product.current_stock}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">Acciones</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/products/${product.id}/edit`}>Editar</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/products/${product.id}/history`}>Historial</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(product.id)}
-                      disabled={deleting === product.id}
-                    >
-                      Eliminar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+    <div className="grid gap-4">
+      <div className="grid gap-4 md:hidden">
+        {products.map((product) => (
+          <div key={product.id} className="grid gap-2">
+            <ProductCard product={product} />
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <Link href={`/products/${product.id}/edit`} className="text-primary underline">
+                Editar
+              </Link>
+              <Link href={`/products/${product.id}/history`} className="text-muted-foreground underline">
+                Historial
+              </Link>
+              <button
+                onClick={() => handleDelete(product.id)}
+                disabled={deleting === product.id}
+                className="text-destructive underline"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Producto</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead>Barcode</TableHead>
+              <TableHead>Categoría</TableHead>
+              <TableHead>Precio</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+          </TableHeader>
+          <TableBody>
+            {products.map((product) => {
+              const category = product.category_id ? categoryMap.get(product.category_id) : null;
+              return (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-10 w-10 overflow-hidden rounded-md bg-muted">
+                        {product.image_url ? (
+                          <Image src={product.image_url} alt={product.name} fill className="object-cover" />
+                        ) : null}
+                      </div>
+                      <div>
+                        <div className="font-medium">{product.name}</div>
+                        <div className="text-xs text-muted-foreground">{product.unit}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">{product.sku}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{product.barcode ?? "-"}</TableCell>
+                  <TableCell>
+                    {category ? (
+                      <span
+                        className="inline-flex items-center gap-2 rounded-full bg-muted px-2 py-1 text-xs"
+                      >
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: category.color ?? "#3B82F6" }} />
+                        {category.name}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+                  <TableCell>{formatCurrency(Number(product.selling_price))}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <StockBadge currentStock={product.current_stock} minThreshold={product.min_stock_threshold} />
+                      <span className="text-xs text-muted-foreground">{product.current_stock}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">Acciones</Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/products/${product.id}/edit`}>Editar</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/products/${product.id}/history`}>Historial</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(product.id)}
+                          disabled={deleting === product.id}
+                        >
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }

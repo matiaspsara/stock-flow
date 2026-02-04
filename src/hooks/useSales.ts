@@ -17,6 +17,7 @@ export type SaleFilters = {
 export function useSales(filters: SaleFilters = {}) {
   return useQuery({
     queryKey: ["sales", filters],
+    staleTime: 1000 * 60,
     queryFn: async () => {
       const supabase = createClient();
       const pageSize = filters.pageSize ?? 20;
@@ -42,6 +43,7 @@ export function useSales(filters: SaleFilters = {}) {
 export function useSale(id: string) {
   return useQuery({
     queryKey: ["sale", id],
+    staleTime: 1000 * 60,
     queryFn: async () => {
       const supabase = createClient();
       const { data: sale, error } = await supabase.from("sales").select("*").eq("id", id).single();
@@ -72,6 +74,7 @@ export function useCreateSale() {
 export function useTodaySalesStats() {
   return useQuery({
     queryKey: ["sales-today"],
+    staleTime: 1000 * 60,
     queryFn: async () => {
       const supabase = createClient();
       const today = new Date().toISOString().slice(0, 10);

@@ -9,29 +9,51 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import type { OrganizationSettings } from "@/types/database.types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrganizationSettingsPage() {
   const [settings, setSettings] = useState<OrganizationSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      const supabase = createClient();
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: roleRow } = await supabase
-        .from("user_roles")
-        .select("organization_id")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
-      const orgId = roleRow?.[0]?.organization_id;
-      if (!orgId) return;
-      const { data } = await supabase.from("organization_settings").select("*").eq("organization_id", orgId).single();
-      if (data) setSettings(data as OrganizationSettings);
-      setLoading(false);
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+          error: userError
+        } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        if (!user) {
+          setError("Sesión no disponible.");
+          return;
+        }
+        const { data: roleRow, error: roleError } = await supabase
+          .from("user_roles")
+          .select("organization_id")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (roleError) throw roleError;
+        const orgId = roleRow?.[0]?.organization_id;
+        if (!orgId) {
+          setError("No se encontró organización asociada.");
+          return;
+        }
+        const { data, error: settingsError } = await supabase
+          .from("organization_settings")
+          .select("*")
+          .eq("organization_id", orgId)
+          .single();
+        if (settingsError) throw settingsError;
+        if (data) setSettings(data as OrganizationSettings);
+      } catch (err: any) {
+        console.error(err);
+        setError(err?.message ?? "No se pudo cargar la configuración.");
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
@@ -58,7 +80,25 @@ export default function OrganizationSettingsPage() {
   };
 
   if (loading) {
-    return <div className="text-sm text-muted-foreground">Cargando...</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Configuración de recibos</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-20 w-full" />
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={`receipt-skel-${index}`} className="h-6 w-full" />
+          ))}
+          <Skeleton className="h-9 w-28" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return <div className="text-sm text-destructive">{error}</div>;
   }
 
   if (!settings) {

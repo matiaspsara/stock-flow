@@ -7,10 +7,11 @@ import { useDateRange } from "@/hooks/useDateRange";
 import { useProductPerformance } from "@/hooks/useReports";
 import { formatCurrency } from "@/lib/utils/currency";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function ProductReportPage() {
   const { range, setRange } = useDateRange("30d");
-  const { data = [] } = useProductPerformance(range);
+  const { data = [], isLoading } = useProductPerformance(range);
   const [search, setSearch] = useState("");
 
   const filtered = data.filter((row: any) => row.product.toLowerCase().includes(search.toLowerCase()));
@@ -29,34 +30,38 @@ export default function ProductReportPage() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Producto</TableHead>
-              <TableHead>Categoría</TableHead>
-              <TableHead>Unidades</TableHead>
-              <TableHead>Ingresos</TableHead>
-              <TableHead>COGS</TableHead>
-              <TableHead>Ganancia</TableHead>
-              <TableHead>Margen %</TableHead>
-              <TableHead>Stock</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((row: any) => (
-              <TableRow key={row.product}>
-                <TableCell>{row.product}</TableCell>
-                <TableCell>{row.category}</TableCell>
-                <TableCell>{row.units}</TableCell>
-                <TableCell>{formatCurrency(row.revenue)}</TableCell>
-                <TableCell>{formatCurrency(row.cogs)}</TableCell>
-                <TableCell>{formatCurrency(row.profit)}</TableCell>
-                <TableCell>{row.margin.toFixed(1)}%</TableCell>
-                <TableCell>{row.current_stock}</TableCell>
+        {isLoading ? (
+          <TableSkeleton columns={8} rows={8} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Producto</TableHead>
+                <TableHead>Categoría</TableHead>
+                <TableHead>Unidades</TableHead>
+                <TableHead>Ingresos</TableHead>
+                <TableHead>COGS</TableHead>
+                <TableHead>Ganancia</TableHead>
+                <TableHead>Margen %</TableHead>
+                <TableHead>Stock</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((row: any) => (
+                <TableRow key={row.product}>
+                  <TableCell>{row.product}</TableCell>
+                  <TableCell>{row.category}</TableCell>
+                  <TableCell>{row.units}</TableCell>
+                  <TableCell>{formatCurrency(row.revenue)}</TableCell>
+                  <TableCell>{formatCurrency(row.cogs)}</TableCell>
+                  <TableCell>{formatCurrency(row.profit)}</TableCell>
+                  <TableCell>{row.margin.toFixed(1)}%</TableCell>
+                  <TableCell>{row.current_stock}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

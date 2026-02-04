@@ -11,15 +11,19 @@ export function MobileNav() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="lg:hidden rounded-md p-2 hover:bg-accent" aria-label="Abrir menú">
+        <button
+          className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent lg:hidden"
+          aria-label="Abrir menú"
+        >
           <Menu className="h-5 w-5" />
+          <span>Menú</span>
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-xs p-4">
+      <DialogContent className="h-full w-full max-w-none p-4 sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Menú</DialogTitle>
+          <DialogTitle>StockFlow</DialogTitle>
         </DialogHeader>
-        <DashboardNav className="mt-2" />
+        <DashboardNav className="mt-2" onNavigate={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

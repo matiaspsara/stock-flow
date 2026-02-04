@@ -10,10 +10,11 @@ import { formatDate } from "@/lib/utils/dates";
 import { downloadCsv } from "@/lib/utils/csv";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function SalesReportPage() {
   const { range, setRange } = useDateRange("30d");
-  const { data } = useSalesReport(range);
+  const { data, isLoading } = useSalesReport(range);
 
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
@@ -65,26 +66,30 @@ export default function SalesReportPage() {
           </Button>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Venta</TableHead>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Método</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((sale: any) => (
-              <TableRow key={sale.id}>
-                <TableCell>{sale.sale_number}</TableCell>
-                <TableCell>{formatDate(sale.created_at)}</TableCell>
-                <TableCell>{formatCurrency(Number(sale.final_amount))}</TableCell>
-                <TableCell>{sale.payment_method}</TableCell>
+        {isLoading ? (
+          <TableSkeleton columns={4} rows={8} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Venta</TableHead>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Método</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((sale: any) => (
+                <TableRow key={sale.id}>
+                  <TableCell>{sale.sale_number}</TableCell>
+                  <TableCell>{formatDate(sale.created_at)}</TableCell>
+                  <TableCell>{formatCurrency(Number(sale.final_amount))}</TableCell>
+                  <TableCell>{sale.payment_method}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { OrganizationSettings } from "@/types/database.types";
 import { sendReceipt } from "@/app/actions/send-receipt";
 import { useCreateNotification } from "@/hooks/useNotifications";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function POSPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -29,8 +30,8 @@ export default function POSPage() {
   const items = useCart((s) => s.items);
   const { total, subtotal, discountAmount } = useCartTotals();
 
-  const { data: productsData } = useProducts({ pageSize: 8, search: "" });
-  const { data: popularProducts = [] } = usePopularProducts();
+  const { data: productsData, isLoading: loadingProducts } = useProducts({ pageSize: 8, search: "" });
+  const { data: popularProducts = [], isLoading: loadingPopular } = usePopularProducts();
   const createSale = useCreateSale();
   const createNotification = useCreateNotification();
 
@@ -178,38 +179,53 @@ export default function POSPage() {
               Escanear (F2)
             </Button>
           </div>
-          <ProductSearchCombobox
-            products={productsData?.data ?? []}
-            onSelect={(product) =>
-              addItem({
-                product_id: product.id,
-                product_name: product.name,
-                sku: product.sku,
-                unit_price: Number(product.selling_price),
-                current_stock: product.current_stock
-              })
-            }
-          />
+          {loadingProducts ? (
+            <div className="grid gap-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+            <ProductSearchCombobox
+              products={productsData?.data ?? []}
+              onSelect={(product) =>
+                addItem({
+                  product_id: product.id,
+                  product_name: product.name,
+                  sku: product.sku,
+                  unit_price: Number(product.selling_price),
+                  current_stock: product.current_stock
+                })
+              }
+            />
+          )}
           <div className="grid gap-3">
             <p className="text-sm font-medium">Productos populares</p>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {quickProducts.slice(0, 9).map((product) => (
-                <button
-                  key={product.id}
-                  type="button"
-                  onClick={() =>
-                    addItem({
-                      product_id: product.id,
-                      product_name: product.name,
-                      sku: product.sku,
-                      unit_price: Number(product.selling_price),
-                      current_stock: product.current_stock
-                    })
-                  }
-                >
-                  <ProductCard product={product} />
-                </button>
-              ))}
+              {loadingProducts || loadingPopular
+                ? Array.from({ length: 6 }).map((_, index) => (
+                    <div key={`pos-skel-${index}`} className="rounded-md border p-3">
+                      <Skeleton className="h-24 w-full" />
+                      <Skeleton className="mt-2 h-4 w-3/4" />
+                      <Skeleton className="mt-1 h-3 w-1/2" />
+                    </div>
+                  ))
+                : quickProducts.slice(0, 9).map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      onClick={() =>
+                        addItem({
+                          product_id: product.id,
+                          product_name: product.name,
+                          sku: product.sku,
+                          unit_price: Number(product.selling_price),
+                          current_stock: product.current_stock
+                        })
+                      }
+                    >
+                      <ProductCard product={product} />
+                    </button>
+                  ))}
             </div>
           </div>
         </div>

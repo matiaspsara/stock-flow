@@ -11,11 +11,12 @@ import { Button } from "@/components/ui/button";
 import { usePurchases, useMarkPurchaseAsPaid } from "@/hooks/usePurchases";
 import { formatCurrency } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/dates";
+import { TableSkeleton, CardListSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function PurchasesPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string | undefined>(undefined);
-  const { data: purchases = [] } = usePurchases({ search, status: status as any });
+  const { data: purchases = [], isLoading } = usePurchases({ search, status: status as any });
   const markPaid = useMarkPurchaseAsPaid();
 
   return (
@@ -45,34 +46,40 @@ export default function PurchasesPage() {
           </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Número</TableHead>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Proveedor</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Factura</TableHead>
-              <TableHead>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {purchases.map((purchase: any) => (
-              <TableRow key={purchase.id}>
-                <TableCell>{purchase.purchase_number}</TableCell>
-                <TableCell>{formatDate(purchase.created_at)}</TableCell>
-                <TableCell>{purchase.suppliers?.name ?? "-"}</TableCell>
-                <TableCell>{formatCurrency(Number(purchase.total_amount))}</TableCell>
-                <TableCell>
-                  <Badge variant={purchase.payment_status === "paid" ? "success" : "warning"}>
-                    {purchase.payment_status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{purchase.invoice_number ?? "-"}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/purchases/${purchase.id}`} className="text-sm text-primary underline">
+        {isLoading ? (
+          <>
+            <div className="md:hidden">
+              <CardListSkeleton count={4} />
+            </div>
+            <div className="hidden md:block">
+              <TableSkeleton columns={7} rows={6} />
+            </div>
+          </>
+        ) : purchases.length === 0 ? (
+          <div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground">
+            No hay compras registradas todavía. Creá la primera orden para cargar stock.
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-3 md:hidden">
+              {purchases.map((purchase: any) => (
+                <div key={purchase.id} className="rounded-md border p-4 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{purchase.purchase_number}</span>
+                    <span className="text-muted-foreground">{formatDate(purchase.created_at)}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span>{purchase.suppliers?.name ?? "-"}</span>
+                    <span>{formatCurrency(Number(purchase.total_amount))}</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant={purchase.payment_status === "paid" ? "success" : "warning"}>
+                      {purchase.payment_status}
+                    </Badge>
+                    <span className="text-muted-foreground">{purchase.invoice_number ?? "-"}</span>
+                  </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <Link href={`/purchases/${purchase.id}`} className="text-primary underline">
                       Ver detalle
                     </Link>
                     {purchase.payment_status !== "paid" && (
@@ -81,11 +88,54 @@ export default function PurchasesPage() {
                       </Button>
                     )}
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Número</TableHead>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Proveedor</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Factura</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {purchases.map((purchase: any) => (
+                    <TableRow key={purchase.id}>
+                      <TableCell>{purchase.purchase_number}</TableCell>
+                      <TableCell>{formatDate(purchase.created_at)}</TableCell>
+                      <TableCell>{purchase.suppliers?.name ?? "-"}</TableCell>
+                      <TableCell>{formatCurrency(Number(purchase.total_amount))}</TableCell>
+                      <TableCell>
+                        <Badge variant={purchase.payment_status === "paid" ? "success" : "warning"}>
+                          {purchase.payment_status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{purchase.invoice_number ?? "-"}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Link href={`/purchases/${purchase.id}`} className="text-sm text-primary underline">
+                            Ver detalle
+                          </Link>
+                          {purchase.payment_status !== "paid" && (
+                            <Button size="sm" variant="outline" onClick={() => markPaid.mutateAsync(purchase.id)}>
+                              Marcar pagada
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

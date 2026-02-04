@@ -9,6 +9,7 @@ import { useInventoryMovements } from "@/hooks/useInventoryMovements";
 import { formatDate } from "@/lib/utils/dates";
 import { downloadCsv } from "@/lib/utils/csv";
 import { Button } from "@/components/ui/button";
+import { TableSkeleton } from "@/components/ui/loading-skeletons";
 
 const typeLabel: Record<string, string> = {
   sale: "Venta",
@@ -19,7 +20,7 @@ const typeLabel: Record<string, string> = {
 
 export default function MovementsPage() {
   const [type, setType] = useState<string>("all");
-  const { data: movements = [] } = useInventoryMovements({ type: type === "all" ? undefined : (type as any) });
+  const { data: movements = [], isLoading } = useInventoryMovements({ type: type === "all" ? undefined : (type as any) });
 
   return (
     <Card>
@@ -63,34 +64,38 @@ export default function MovementsPage() {
           </Button>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Producto</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Cantidad</TableHead>
-              <TableHead>Stock anterior</TableHead>
-              <TableHead>Nuevo stock</TableHead>
-              <TableHead>Usuario</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {movements.map((movement: any) => (
-              <TableRow key={movement.id}>
-                <TableCell>{formatDate(movement.created_at)}</TableCell>
-                <TableCell>{movement.products?.name ?? "-"}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{typeLabel[movement.movement_type] ?? movement.movement_type}</Badge>
-                </TableCell>
-                <TableCell>{movement.quantity}</TableCell>
-                <TableCell>{movement.previous_stock}</TableCell>
-                <TableCell>{movement.new_stock}</TableCell>
-                <TableCell>{movement.users?.full_name ?? "-"}</TableCell>
+        {isLoading ? (
+          <TableSkeleton columns={7} rows={6} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Producto</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Cantidad</TableHead>
+                <TableHead>Stock anterior</TableHead>
+                <TableHead>Nuevo stock</TableHead>
+                <TableHead>Usuario</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {movements.map((movement: any) => (
+                <TableRow key={movement.id}>
+                  <TableCell>{formatDate(movement.created_at)}</TableCell>
+                  <TableCell>{movement.products?.name ?? "-"}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{typeLabel[movement.movement_type] ?? movement.movement_type}</Badge>
+                  </TableCell>
+                  <TableCell>{movement.quantity}</TableCell>
+                  <TableCell>{movement.previous_stock}</TableCell>
+                  <TableCell>{movement.new_stock}</TableCell>
+                  <TableCell>{movement.users?.full_name ?? "-"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

@@ -18,6 +18,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { toast } from "sonner";
 import type { Product } from "@/types/database.types";
 import { BarcodeScanner } from "@/components/products/BarcodeScanner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const unitOptions = ["unidad", "kg", "litro", "caja", "pack"];
 
@@ -74,7 +75,7 @@ export function ProductForm({
   onSuccess?: () => void;
   mode: "create" | "edit";
 }) {
-  const { data: categories } = useCategories();
+  const { data: categories, isLoading: loadingCategories } = useCategories();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image_url ?? null);
   const [uploading, setUploading] = useState(false);
@@ -278,26 +279,30 @@ export function ProductForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Categoría</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona una categoría" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories && categories.length > 0 ? (
-                    categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
+              {loadingCategories ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona una categoría" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories && categories.length > 0 ? (
+                      categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="__empty__" disabled>
+                        No hay categorías disponibles
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="__empty__" disabled>
-                      No hay categorías disponibles
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -438,7 +443,9 @@ export function ProductForm({
           )}
         />
 
-        <Button type="submit">{mode === "create" ? "Crear producto" : "Guardar cambios"}</Button>
+        <Button type="submit" disabled={loadingCategories}>
+          {mode === "create" ? "Crear producto" : "Guardar cambios"}
+        </Button>
       </form>
 
       <BarcodeScanner

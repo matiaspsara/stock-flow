@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangeSelector } from "@/components/reports/DateRangeSelector";
 import { useDateRange } from "@/hooks/useDateRange";
 import { useInventoryReport } from "@/hooks/useReports";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function InventoryReportPage() {
   const { range, setRange } = useDateRange("30d");
-  const { data } = useInventoryReport(range);
+  const { data, isLoading } = useInventoryReport(range);
 
   return (
     <Card>
@@ -16,11 +17,19 @@ export default function InventoryReportPage() {
       </CardHeader>
       <CardContent className="grid gap-4">
         <DateRangeSelector value={range} onChange={setRange} />
-        <div className="grid gap-2 text-sm">
-          <div>Stock agregado: {data?.added ?? 0}</div>
-          <div>Stock reducido: {data?.removed ?? 0}</div>
-          <div>Movimientos: {data?.movements?.length ?? 0}</div>
-        </div>
+        {isLoading ? (
+          <div className="grid gap-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        ) : (
+          <div className="grid gap-2 text-sm">
+            <div>Stock agregado: {data?.added ?? 0}</div>
+            <div>Stock reducido: {data?.removed ?? 0}</div>
+            <div>Movimientos: {data?.movements?.length ?? 0}</div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

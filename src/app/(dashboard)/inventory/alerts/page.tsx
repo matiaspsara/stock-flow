@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLowStockProducts } from "@/hooks/useInventoryStats";
 import { useCategories } from "@/hooks/useCategories";
+import { TableSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function InventoryAlertsPage() {
-  const { data: products = [] } = useLowStockProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: products = [], isLoading: isLoadingProducts } = useLowStockProducts();
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
   const [categoryId, setCategoryId] = useState("all");
   const [severity, setSeverity] = useState("all");
 
@@ -55,32 +56,36 @@ export default function InventoryAlertsPage() {
           </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Producto</TableHead>
-              <TableHead>Stock</TableHead>
-              <TableHead>Mínimo</TableHead>
-              <TableHead>Categoría</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((product: any) => (
-              <TableRow key={product.id}>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>
-                  <Badge variant={product.current_stock === 0 ? "destructive" : "warning"}>
-                    {product.current_stock}
-                  </Badge>
-                </TableCell>
-                <TableCell>{product.min_stock_threshold}</TableCell>
-                <TableCell>
-                  {categories?.find((c) => c.id === product.category_id)?.name ?? "-"}
-                </TableCell>
+        {isLoadingProducts || isLoadingCategories ? (
+          <TableSkeleton columns={4} rows={6} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Producto</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead>Mínimo</TableHead>
+                <TableHead>Categoría</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((product: any) => (
+                <TableRow key={product.id}>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>
+                    <Badge variant={product.current_stock === 0 ? "destructive" : "warning"}>
+                      {product.current_stock}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{product.min_stock_threshold}</TableCell>
+                  <TableCell>
+                    {categories?.find((c) => c.id === product.category_id)?.name ?? "-"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

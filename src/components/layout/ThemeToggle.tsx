@@ -6,16 +6,24 @@ type Theme = "light" | "dark" | "system";
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("stockflow_prefs");
-    if (stored) {
-      const prefs = JSON.parse(stored);
-      setTheme(prefs.theme ?? "light");
+    try {
+      const stored = localStorage.getItem("stockflow_prefs");
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        setTheme(prefs.theme ?? "light");
+      }
+    } catch {
+      setTheme("light");
+    } finally {
+      setMounted(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     const next = { theme } as { theme: Theme };
     const stored = localStorage.getItem("stockflow_prefs");
     const prefs = stored ? JSON.parse(stored) : {};
@@ -25,7 +33,7 @@ export function ThemeToggle() {
     const resolved = theme === "system" ? (systemDark ? "dark" : "light") : theme;
     if (resolved === "dark") document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
-  }, [theme]);
+  }, [theme, mounted]);
 
   return (
     <select

@@ -1,7 +1,9 @@
 {
-  "/(dashboard)/settings/organization/page": "app/(dashboard)/settings/organization/page.js",
-  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/(dashboard)/pos/page": "app/(dashboard)/pos/page.js",
   "/(dashboard)/products/page": "app/(dashboard)/products/page.js",
-  "/(dashboard)/notifications/page": "app/(dashboard)/notifications/page.js",
-  "/(dashboard)/inventory/page": "app/(dashboard)/inventory/page.js"
+  "/(dashboard)/sales/page": "app/(dashboard)/sales/page.js",
+  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/(dashboard)/inventory/page": "app/(dashboard)/inventory/page.js",
+  "/(dashboard)/purchases/page": "app/(dashboard)/purchases/page.js"
 }

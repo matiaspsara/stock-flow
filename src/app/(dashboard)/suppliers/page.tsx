@@ -11,11 +11,12 @@ import { SupplierFormDialog } from "@/components/suppliers/SupplierFormDialog";
 import { useSuppliers, useDeleteSupplier } from "@/hooks/useSuppliers";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function SuppliersPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
-  const { data: suppliers = [] } = useSuppliers({ search, status: status === "all" ? undefined : status });
+  const { data: suppliers = [], isLoading } = useSuppliers({ search, status: status === "all" ? undefined : status });
   const deactivateSupplier = useDeleteSupplier();
 
   const handleDeactivate = async (id: string) => {
@@ -47,46 +48,50 @@ export default function SuppliersPage() {
           </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Contacto</TableHead>
-              <TableHead>Teléfono</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>CUIT</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {suppliers.map((supplier) => (
-              <TableRow key={supplier.id}>
-                <TableCell>{supplier.name}</TableCell>
-                <TableCell>{supplier.contact_person ?? "-"}</TableCell>
-                <TableCell>{supplier.phone ?? "-"}</TableCell>
-                <TableCell>{supplier.email ?? "-"}</TableCell>
-                <TableCell>{supplier.tax_id ?? "-"}</TableCell>
-                <TableCell>
-                  <Badge variant={supplier.is_active ? "success" : "secondary"}>
-                    {supplier.is_active ? "Activo" : "Inactivo"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <SupplierFormDialog supplier={supplier} />
-                    <Button variant="ghost" size="sm" onClick={() => handleDeactivate(supplier.id)}>
-                      Desactivar
-                    </Button>
-                    <Link href={`/purchases?supplier=${supplier.id}`} className="text-sm text-primary underline">
-                      Ver compras
-                    </Link>
-                  </div>
-                </TableCell>
+        {isLoading ? (
+          <TableSkeleton columns={7} rows={6} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Contacto</TableHead>
+                <TableHead>Teléfono</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>CUIT</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {suppliers.map((supplier) => (
+                <TableRow key={supplier.id}>
+                  <TableCell>{supplier.name}</TableCell>
+                  <TableCell>{supplier.contact_person ?? "-"}</TableCell>
+                  <TableCell>{supplier.phone ?? "-"}</TableCell>
+                  <TableCell>{supplier.email ?? "-"}</TableCell>
+                  <TableCell>{supplier.tax_id ?? "-"}</TableCell>
+                  <TableCell>
+                    <Badge variant={supplier.is_active ? "success" : "secondary"}>
+                      {supplier.is_active ? "Activo" : "Inactivo"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <SupplierFormDialog supplier={supplier} />
+                      <Button variant="ghost" size="sm" onClick={() => handleDeactivate(supplier.id)}>
+                        Desactivar
+                      </Button>
+                      <Link href={`/purchases?supplier=${supplier.id}`} className="text-sm text-primary underline">
+                        Ver compras
+                      </Link>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

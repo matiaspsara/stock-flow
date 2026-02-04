@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import type { OrganizationSettings } from "@/types/database.types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NotificationSettingsPage() {
   const [settings, setSettings] = useState<OrganizationSettings | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -27,6 +29,7 @@ export default function NotificationSettingsPage() {
       if (!orgId) return;
       const { data } = await supabase.from("organization_settings").select("*").eq("organization_id", orgId).single();
       setSettings(data as OrganizationSettings);
+      setLoading(false);
     };
     load();
   }, []);
@@ -46,6 +49,22 @@ export default function NotificationSettingsPage() {
     if (error) return toast.error(error.message);
     toast.success("Preferencias actualizadas");
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Notificaciones</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={`notif-skel-${index}`} className="h-6 w-full" />
+          ))}
+          <Skeleton className="h-10 w-40" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!settings) return <div className="text-sm text-muted-foreground">Cargando...</div>;
 

@@ -8,56 +8,73 @@ import { useDateRange } from "@/hooks/useDateRange";
 import { useDashboardMetrics, useSalesReport, useProductPerformance } from "@/hooks/useReports";
 import { formatCurrency } from "@/lib/utils/currency";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const colors = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#6366F1"];
 
 export default function ReportsPage() {
   const { range, setRange } = useDateRange("30d");
-  const { data: metrics } = useDashboardMetrics(range);
-  const { data: salesReport } = useSalesReport(range);
-  const { data: productPerformance } = useProductPerformance(range);
+  const { data: metrics, isLoading: loadingMetrics } = useDashboardMetrics(range);
+  const { data: salesReport, isLoading: loadingSales } = useSalesReport(range);
+  const { data: productPerformance, isLoading: loadingProducts } = useProductPerformance(range);
 
   return (
     <div className="grid gap-6">
       <DateRangeSelector value={range} onChange={setRange} />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Ingresos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{formatCurrency(metrics?.totalRevenue ?? 0)}</div>
-            <div className="text-xs text-muted-foreground">{metrics?.transactions ?? 0} ventas</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Transacciones</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{metrics?.transactions ?? 0}</div>
-            <div className="text-xs text-muted-foreground">Promedio {formatCurrency(metrics?.avgTransaction ?? 0)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Valor inventario</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{formatCurrency(metrics?.inventoryValue ?? 0)}</div>
-            <div className="text-xs text-muted-foreground">Costo de stock</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Descuentos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{formatCurrency(salesReport?.totalDiscounts ?? 0)}</div>
-            <div className="text-xs text-muted-foreground">Periodo actual</div>
-          </CardContent>
-        </Card>
+        {loadingMetrics || loadingSales ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <Card key={`report-metric-${index}`}>
+              <CardHeader>
+                <Skeleton className="h-4 w-28" />
+              </CardHeader>
+              <CardContent className="grid gap-2">
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-3 w-20" />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Ingresos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(metrics?.totalRevenue ?? 0)}</div>
+                <div className="text-xs text-muted-foreground">{metrics?.transactions ?? 0} ventas</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Transacciones</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{metrics?.transactions ?? 0}</div>
+                <div className="text-xs text-muted-foreground">Promedio {formatCurrency(metrics?.avgTransaction ?? 0)}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Valor inventario</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(metrics?.inventoryValue ?? 0)}</div>
+                <div className="text-xs text-muted-foreground">Costo de stock</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Descuentos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(salesReport?.totalDiscounts ?? 0)}</div>
+                <div className="text-xs text-muted-foreground">Periodo actual</div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -66,15 +83,19 @@ export default function ReportsPage() {
             <CardTitle>Ventas por día</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={salesReport?.salesByDay ?? []}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+            {loadingSales ? (
+              <Skeleton className="h-full w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={salesReport?.salesByDay ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -82,15 +103,19 @@ export default function ReportsPage() {
             <CardTitle>Ventas por método</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={salesReport?.salesByPayment ?? []} dataKey="value" nameKey="method" outerRadius={110}>
-                  {(salesReport?.salesByPayment ?? []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+            {loadingSales ? (
+              <Skeleton className="h-full w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={salesReport?.salesByPayment ?? []} dataKey="value" nameKey="method" outerRadius={110}>
+                    {(salesReport?.salesByPayment ?? []).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -108,12 +133,18 @@ export default function ReportsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-2">
-                {(productPerformance ?? []).slice(0, 10).map((row: any) => (
-                  <div key={row.product} className="flex items-center justify-between text-sm">
-                    <span>{row.product}</span>
-                    <span>{formatCurrency(row.revenue)}</span>
-                  </div>
-                ))}
+                {loadingProducts ? (
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <Skeleton key={`top-prod-${index}`} className="h-4 w-full" />
+                  ))
+                ) : (
+                  (productPerformance ?? []).slice(0, 10).map((row: any) => (
+                    <div key={row.product} className="flex items-center justify-between text-sm">
+                      <span>{row.product}</span>
+                      <span>{formatCurrency(row.revenue)}</span>
+                    </div>
+                  ))
+                )}
               </div>
               <Link className="text-sm text-primary underline" href="/reports/products">
                 Ver reporte completo
@@ -127,12 +158,18 @@ export default function ReportsPage() {
               <CardTitle>Ventas recientes</CardTitle>
             </CardHeader>
             <CardContent>
-              {(salesReport?.sales ?? []).slice(0, 10).map((sale: any) => (
-                <div key={sale.id} className="flex items-center justify-between text-sm">
-                  <span>{sale.sale_number}</span>
-                  <span>{formatCurrency(Number(sale.final_amount))}</span>
-                </div>
-              ))}
+              {loadingSales ? (
+                Array.from({ length: 8 }).map((_, index) => (
+                  <Skeleton key={`recent-sale-${index}`} className="h-4 w-full" />
+                ))
+              ) : (
+                (salesReport?.sales ?? []).slice(0, 10).map((sale: any) => (
+                  <div key={sale.id} className="flex items-center justify-between text-sm">
+                    <span>{sale.sale_number}</span>
+                    <span>{formatCurrency(Number(sale.final_amount))}</span>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -12,6 +12,7 @@ function inRange(date: string, range: DateRange) {
 export function useDashboardMetrics(range: DateRange) {
   return useQuery({
     queryKey: ["report-metrics", range],
+    staleTime: 1000 * 30,
     queryFn: async () => {
       const supabase = createClient();
       const { data: sales = [] } = await supabase.from("sales").select("*");
@@ -34,6 +35,7 @@ export function useDashboardMetrics(range: DateRange) {
 export function useSalesReport(range: DateRange) {
   return useQuery({
     queryKey: ["sales-report", range],
+    staleTime: 1000 * 30,
     queryFn: async () => {
       const supabase = createClient();
       const { data: sales = [] } = await supabase.from("sales").select("*");
@@ -66,6 +68,7 @@ export function useSalesReport(range: DateRange) {
 export function useProductPerformance(range: DateRange) {
   return useQuery({
     queryKey: ["product-performance", range],
+    staleTime: 1000 * 30,
     queryFn: async () => {
       const supabase = createClient();
       const { data: sales = [] } = await supabase.from("sales").select("id, created_at");
@@ -114,6 +117,7 @@ export function useProductPerformance(range: DateRange) {
 export function useEmployeePerformance(range: DateRange) {
   return useQuery({
     queryKey: ["employee-performance", range],
+    staleTime: 1000 * 30,
     queryFn: async () => {
       const supabase = createClient();
       const { data: sales = [] } = await supabase.from("sales").select("*");
@@ -144,6 +148,7 @@ export function useEmployeePerformance(range: DateRange) {
 export function useInventoryReport(range: DateRange) {
   return useQuery({
     queryKey: ["inventory-report", range],
+    staleTime: 1000 * 30,
     queryFn: async () => {
       const supabase = createClient();
       const { data: movements = [] } = await supabase.from("inventory_movements").select("*");
@@ -160,6 +165,7 @@ export function useInventoryReport(range: DateRange) {
 export function useFinancialSummary(range: DateRange) {
   return useQuery({
     queryKey: ["financial-summary", range],
+    staleTime: 1000 * 30,
     queryFn: async () => {
       const supabase = createClient();
       const { data: sales = [] } = await supabase.from("sales").select("*");

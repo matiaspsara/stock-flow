@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,22 @@ export default function ProfilePage() {
     toast.success("Perfil actualizado");
   };
 
-  if (loading) return <div className="text-sm text-muted-foreground">Cargando...</div>;
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Mi perfil</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-9 w-28" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

@@ -23,9 +23,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <header className="flex items-center justify-between border-b border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3">
               <MobileNav />
-              <div>
-              <p className="text-sm text-muted-foreground">Bienvenido</p>
-              <p className="text-lg font-semibold">Librería Papelito</p>
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground sm:text-sm">Bienvenido</p>
+                <p className="truncate text-base font-semibold sm:text-lg">Librería Papelito</p>
               </div>
             </div>
             <div className="flex items-center gap-3">

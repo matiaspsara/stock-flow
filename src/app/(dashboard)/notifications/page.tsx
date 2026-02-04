@@ -7,10 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useNotifications, useMarkNotificationRead, useMarkAllRead } from "@/hooks/useNotifications";
 import { timeAgo } from "@/lib/utils/time";
+import { CardListSkeleton } from "@/components/ui/loading-skeletons";
 
 export default function NotificationsPage() {
   const [tab, setTab] = useState("all");
-  const { data: notifications = [] } = useNotifications({ type: tab, unreadOnly: tab === "unread" });
+  const { data: notifications = [], isLoading } = useNotifications({ type: tab, unreadOnly: tab === "unread" });
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllRead();
 
@@ -29,31 +30,35 @@ export default function NotificationsPage() {
             <TabsTrigger value="system">Sistema</TabsTrigger>
           </TabsList>
           <TabsContent value={tab}>
-            <div className="grid gap-2">
-              {notifications.map((notification) => (
-                <div key={notification.id} className="rounded-md border border-border p-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="text-sm font-semibold">{notification.title}</div>
-                      <div className="text-xs text-muted-foreground">{notification.message}</div>
-                      <div className="text-xs text-muted-foreground">{timeAgo(notification.created_at)}</div>
+            {isLoading ? (
+              <CardListSkeleton count={4} />
+            ) : (
+              <div className="grid gap-2">
+                {notifications.map((notification) => (
+                  <div key={notification.id} className="rounded-md border border-border p-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-sm font-semibold">{notification.title}</div>
+                        <div className="text-xs text-muted-foreground">{notification.message}</div>
+                        <div className="text-xs text-muted-foreground">{timeAgo(notification.created_at)}</div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => markRead.mutate({ id: notification.id, is_read: !notification.is_read })}
+                      >
+                        {notification.is_read ? "Marcar como no leída" : "Marcar como leída"}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => markRead.mutate({ id: notification.id, is_read: !notification.is_read })}
-                    >
-                      {notification.is_read ? "Marcar como no leída" : "Marcar como leída"}
-                    </Button>
+                    {notification.reference_id && (
+                      <Link href={`/products/${notification.reference_id}/history`} className="text-xs text-primary underline">
+                        Ver detalle
+                      </Link>
+                    )}
                   </div>
-                  {notification.reference_id && (
-                    <Link href={`/products/${notification.reference_id}/history`} className="text-xs text-primary underline">
-                      Ver detalle
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>
