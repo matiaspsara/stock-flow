@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { OrganizationSettings } from "@/types/database.types";
 import { sendReceipt } from "@/app/actions/send-receipt";
+import { useCreateNotification } from "@/hooks/useNotifications";
 
 export default function POSPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -31,6 +32,7 @@ export default function POSPage() {
   const { data: productsData } = useProducts({ pageSize: 8, search: "" });
   const { data: popularProducts = [] } = usePopularProducts();
   const createSale = useCreateSale();
+  const createNotification = useCreateNotification();
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -142,6 +144,15 @@ export default function POSPage() {
         } catch (err) {
           toast.error("Error al enviar recibo");
         }
+      }
+      if (total >= 50000) {
+        await createNotification.mutateAsync({
+          type: "system",
+          title: "Venta grande",
+          message: `Venta registrada por ${total}`,
+          reference_id: String(saleId),
+          is_read: false
+        });
       }
       clearCart();
     } catch (err: any) {

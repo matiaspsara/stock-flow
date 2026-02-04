@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { NotificationBell } from "@/components/layout/NotificationBell";
+import { DemoBanner } from "@/components/layout/DemoBanner";
+import { OfflineBanner } from "@/components/layout/OfflineBanner";
+import { MobileNav } from "@/components/layout/MobileNav";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
@@ -13,12 +18,21 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <DashboardNav />
         </aside>
         <div className="flex-1">
+          <DemoBanner />
+          <OfflineBanner />
           <header className="flex items-center justify-between border-b border-border bg-background px-6 py-4">
-            <div>
+            <div className="flex items-center gap-3">
+              <MobileNav />
+              <div>
               <p className="text-sm text-muted-foreground">Bienvenido</p>
               <p className="text-lg font-semibold">Librería Papelito</p>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground">Usuario</div>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <NotificationBell />
+              <div className="text-sm text-muted-foreground">Usuario</div>
+            </div>
           </header>
           <main className="p-6">{children}</main>
         </div>

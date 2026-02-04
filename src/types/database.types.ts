@@ -23,6 +23,9 @@ export interface User {
   organization_id: string;
   email: string;
   full_name?: string | null;
+  phone?: string | null;
+  timezone?: string | null;
+  language?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -174,6 +177,13 @@ export interface OrganizationSettings {
   cc_owner_on_receipt?: boolean | null;
   auto_print_receipt?: boolean | null;
   auto_show_receipt_modal?: boolean | null;
+  notify_low_stock?: boolean | null;
+  notify_out_of_stock?: boolean | null;
+  notify_large_sale?: boolean | null;
+  large_sale_threshold?: number | null;
+  notify_purchase_created?: boolean | null;
+  notify_email_low_stock?: boolean | null;
+  notify_email_large_sale?: boolean | null;
   default_tax_rate: number;
   currency: string;
   timezone: string;

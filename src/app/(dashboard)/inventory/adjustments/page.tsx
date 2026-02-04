@@ -10,6 +10,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { useCreateAdjustment, useInventoryMovements } from "@/hooks/useInventoryMovements";
 import { formatDate } from "@/lib/utils/dates";
 import { toast } from "sonner";
+import { useCreateNotification } from "@/hooks/useNotifications";
 
 const reasons = [
   { value: "damaged", label: "Mercadería dañada" },
@@ -24,6 +25,7 @@ export default function AdjustmentsPage() {
   const { data: productsData } = useProducts({ pageSize: 200 });
   const { data: movements = [] } = useInventoryMovements({ type: "adjustment" });
   const createAdjustment = useCreateAdjustment();
+  const createNotification = useCreateNotification();
 
   const [productId, setProductId] = useState("");
   const [type, setType] = useState<"increase" | "decrease">("decrease");
@@ -48,6 +50,13 @@ export default function AdjustmentsPage() {
         notes
       });
       toast.success("Ajuste registrado");
+      await createNotification.mutateAsync({
+        type: "system",
+        title: "Ajuste de stock",
+        message: `Ajuste ${type === "increase" ? "+" : "-"}${quantity} en ${product?.name ?? ""}`,
+        reference_id: productId,
+        is_read: false
+      });
     } catch (err: any) {
       toast.error(err?.message ?? "No se pudo ajustar");
     }

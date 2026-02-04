@@ -13,11 +13,13 @@ import { useCreatePurchase } from "@/hooks/usePurchases";
 import { formatCurrency } from "@/lib/utils/currency";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { useCreateNotification } from "@/hooks/useNotifications";
 
 export default function NewPurchasePage() {
   const { data: suppliers = [] } = useSuppliers();
   const { data: productsData } = useProducts({ pageSize: 100 });
   const createPurchase = useCreatePurchase();
+  const createNotification = useCreateNotification();
 
   const [supplierId, setSupplierId] = useState("");
   const [receivedDate, setReceivedDate] = useState(new Date().toISOString().slice(0, 10));
@@ -83,6 +85,13 @@ export default function NewPurchasePage() {
       });
 
       toast.success("Compra creada");
+      await createNotification.mutateAsync({
+        type: "system",
+        title: "Nueva compra creada",
+        message: `Orden ${purchaseId} por ${formatCurrency(total)}`,
+        reference_id: purchaseId as string,
+        is_read: false
+      });
       window.location.href = `/purchases/${purchaseId}`;
     } catch (err: any) {
       toast.error(err?.message ?? "No se pudo crear la compra");

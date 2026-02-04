@@ -3,17 +3,14 @@ import { cn } from "@/lib/utils/cn";
 
 const navItems = [
   { href: "/dashboard", label: "Inicio" },
-  { href: "/products", label: "Productos" },
-  { href: "/products/categories", label: "Categorías" },
   { href: "/pos", label: "Punto de Venta" },
+  { href: "/products", label: "Productos" },
+  { href: "/inventory", label: "Inventario" },
   { href: "/sales", label: "Ventas" },
   { href: "/purchases", label: "Compras" },
-  { href: "/inventory", label: "Inventario" },
-  { href: "/inventory/alerts", label: "Alertas Stock" },
-  { href: "/inventory/movements", label: "Movimientos" },
-  { href: "/inventory/adjustments", label: "Ajustes" },
   { href: "/suppliers", label: "Proveedores" },
   { href: "/reports", label: "Reportes" },
+  { href: "/notifications", label: "Notificaciones" },
   { href: "/settings/organization", label: "Configuración" }
 ];
 

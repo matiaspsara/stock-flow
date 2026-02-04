@@ -1,5 +1,7 @@
 {
-  "/(dashboard)/inventory/adjustments/page": "app/(dashboard)/inventory/adjustments/page.js",
-  "/(dashboard)/suppliers/page": "app/(dashboard)/suppliers/page.js",
+  "/(dashboard)/settings/organization/page": "app/(dashboard)/settings/organization/page.js",
+  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/(dashboard)/products/page": "app/(dashboard)/products/page.js",
+  "/(dashboard)/notifications/page": "app/(dashboard)/notifications/page.js",
   "/(dashboard)/inventory/page": "app/(dashboard)/inventory/page.js"
 }
