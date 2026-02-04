@@ -8,7 +8,10 @@ const navItems = [
   { href: "/pos", label: "Punto de Venta" },
   { href: "/sales", label: "Ventas" },
   { href: "/purchases", label: "Compras" },
-  { href: "/inventory/movements", label: "Inventario" },
+  { href: "/inventory", label: "Inventario" },
+  { href: "/inventory/alerts", label: "Alertas Stock" },
+  { href: "/inventory/movements", label: "Movimientos" },
+  { href: "/inventory/adjustments", label: "Ajustes" },
   { href: "/suppliers", label: "Proveedores" },
   { href: "/reports", label: "Reportes" },
   { href: "/settings/organization", label: "Configuración" }

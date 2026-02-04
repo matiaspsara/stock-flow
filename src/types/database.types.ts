@@ -86,6 +86,7 @@ export interface Purchase {
   supplier_id?: string | null;
   total_amount: number;
   payment_status: PaymentStatus;
+  amount_paid?: number | null;
   invoice_number?: string | null;
   received_date?: string | null;
   notes?: string | null;

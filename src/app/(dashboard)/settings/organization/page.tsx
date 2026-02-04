@@ -17,12 +17,14 @@ export default function OrganizationSettingsPage() {
   useEffect(() => {
     const load = async () => {
       const supabase = createClient();
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.data.user) return;
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+      if (!user) return;
       const { data: roleRow } = await supabase
         .from("user_roles")
         .select("organization_id")
-        .eq("user_id", user.data.user.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1);
       const orgId = roleRow?.[0]?.organization_id;
