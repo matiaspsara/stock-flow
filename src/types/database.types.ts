@@ -167,6 +167,12 @@ export interface OrganizationSettings {
   logo_url?: string | null;
   receipt_header?: string | null;
   receipt_footer?: string | null;
+  receipt_from_email?: string | null;
+  receipt_email_footer?: string | null;
+  auto_send_receipt?: boolean | null;
+  cc_owner_on_receipt?: boolean | null;
+  auto_print_receipt?: boolean | null;
+  auto_show_receipt_modal?: boolean | null;
   default_tax_rate: number;
   currency: string;
   timezone: string;

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSales } from "@/hooks/useSales";
 import { formatCurrency } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/dates";
+import { SendReceiptButton } from "@/components/sales/SendReceiptButton";
 
 export default function SalesPage() {
   const [search, setSearch] = useState("");
@@ -77,9 +78,12 @@ export default function SalesPage() {
                 </TableCell>
                 <TableCell>{sale.customer_name ?? "-"}</TableCell>
                 <TableCell>
-                  <Link href={`/sales/${sale.id}`} className="text-sm text-primary underline">
-                    Ver detalle
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/sales/${sale.id}`} className="text-sm text-primary underline">
+                      Ver detalle
+                    </Link>
+                    <SendReceiptButton saleId={sale.id} defaultEmail={sale.customer_email} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

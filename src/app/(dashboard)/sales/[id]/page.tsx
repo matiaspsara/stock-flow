@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSale } from "@/hooks/useSales";
 import { formatCurrency } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/dates";
+import { SendReceiptButton } from "@/components/sales/SendReceiptButton";
 
 export default function SaleDetailsPage() {
   const params = useParams();
@@ -27,6 +28,7 @@ export default function SaleDetailsPage() {
           <Badge variant="secondary">{sale.payment_method}</Badge>
           <Badge variant={sale.payment_status === "paid" ? "success" : "warning"}>{sale.payment_status}</Badge>
           <span className="text-sm text-muted-foreground">{formatDate(sale.created_at)}</span>
+          <SendReceiptButton saleId={sale.id} defaultEmail={sale.customer_email} />
         </div>
 
         <Table>

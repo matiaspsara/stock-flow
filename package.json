@@ -42,6 +42,7 @@
     "react-day-picker": "^9.1.4",
     "recharts": "^2.12.7",
     "html5-qrcode": "^2.3.8",
+    "resend": "^4.0.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "zustand": "^4.5.4",

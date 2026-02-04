@@ -6,16 +6,23 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { ProductSearchCombobox } from "@/components/products/ProductSearchCombobox";
 import { POSCart } from "@/components/pos/POSCart";
 import { PaymentModal, type PaymentData } from "@/components/pos/PaymentModal";
+import { ReceiptModal, type ReceiptModalData } from "@/components/pos/ReceiptModal";
 import { useCart, useCartTotals } from "@/hooks/useCart";
 import { useProducts } from "@/hooks/useProducts";
 import { usePopularProducts } from "@/hooks/usePopularProducts";
 import { useCreateSale } from "@/hooks/useSales";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import type { OrganizationSettings } from "@/types/database.types";
+import { sendReceipt } from "@/app/actions/send-receipt";
 
 export default function POSPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [receiptData, setReceiptData] = useState<ReceiptModalData | null>(null);
+  const [settings, setSettings] = useState<OrganizationSettings | null>(null);
   const addItem = useCart((s) => s.addItem);
   const clearCart = useCart((s) => s.clearCart);
   const items = useCart((s) => s.items);
@@ -24,6 +31,31 @@ export default function POSPage() {
   const { data: productsData } = useProducts({ pageSize: 8, search: "" });
   const { data: popularProducts = [] } = usePopularProducts();
   const createSale = useCreateSale();
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const supabase = createClient();
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: roleRow } = await supabase
+        .from("user_roles")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      const orgId = roleRow?.[0]?.organization_id;
+      if (!orgId) return;
+      const { data } = await supabase
+        .from("organization_settings")
+        .select("*")
+        .eq("organization_id", orgId)
+        .single();
+      if (data) setSettings(data as OrganizationSettings);
+    };
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -57,7 +89,7 @@ export default function POSPage() {
 
   const handleCheckout = async (payment: PaymentData) => {
     try {
-      await createSale.mutateAsync({
+      const saleId = await createSale.mutateAsync({
         items,
         discount_amount: discountAmount,
         total_amount: subtotal,
@@ -77,8 +109,41 @@ export default function POSPage() {
         notes: payment.notes
       });
       toast.success("Venta registrada");
-      clearCart();
       setPaymentOpen(false);
+      const supabase = createClient();
+      const { data: sale } = await supabase
+        .from("sales")
+        .select("*, users(full_name)")
+        .eq("id", saleId)
+        .single();
+
+      setReceiptData({
+        saleId: String(saleId),
+        saleNumber: sale?.sale_number ?? "PENDIENTE",
+        createdAt: sale?.created_at ?? new Date().toISOString(),
+        storeName: settings?.store_name ?? "StockFlow",
+        storeAddress: settings?.store_address,
+        taxId: settings?.tax_id,
+        phone: settings?.phone,
+        sellerName: sale?.users?.full_name ?? null,
+        items: items.map((item) => ({ name: item.product_name, quantity: item.quantity, subtotal: item.subtotal })),
+        subtotal,
+        discount: discountAmount,
+        total,
+        paymentMethod: payment.method,
+        customerEmail: payment.customerEmail,
+        receiptFooter: settings?.receipt_footer ?? null,
+        autoPrint: settings?.auto_print_receipt ?? false
+      });
+      if (settings?.auto_show_receipt_modal ?? true) setReceiptOpen(true);
+      if (payment.customerEmail && settings?.auto_send_receipt) {
+        try {
+          await sendReceipt(String(saleId), payment.customerEmail);
+        } catch (err) {
+          toast.error("Error al enviar recibo");
+        }
+      }
+      clearCart();
     } catch (err: any) {
       toast.error(err?.message ?? "No se pudo completar la venta");
     }
@@ -145,6 +210,7 @@ export default function POSPage() {
 
       <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onDetected={handleScan} />
       <PaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} onConfirm={handleCheckout} />
+      <ReceiptModal open={receiptOpen} onOpenChange={setReceiptOpen} data={receiptData} />
     </div>
   );
 }

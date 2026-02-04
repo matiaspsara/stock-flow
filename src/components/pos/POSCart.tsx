@@ -90,6 +90,10 @@ export function POSCart({ onCheckout }: { onCheckout: () => void }) {
             />
           </div>
         </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Descuento aplicado</span>
+          <span>-{formatCurrency(discountAmount)}</span>
+        </div>
         <div className="flex items-center justify-between text-lg font-semibold">
           <span>Total</span>
           <span>{formatCurrency(total)}</span>
