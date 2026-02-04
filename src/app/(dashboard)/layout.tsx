@@ -20,18 +20,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="flex-1">
           <DemoBanner />
           <OfflineBanner />
-          <header className="flex items-center justify-between border-b border-border bg-background px-6 py-4">
+          <header className="flex items-center justify-between border-b border-border bg-background px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center gap-3">
               <MobileNav />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground sm:text-sm">Bienvenido</p>
+                <p className="hidden text-xs text-muted-foreground sm:block sm:text-sm">Bienvenido</p>
                 <p className="truncate text-base font-semibold sm:text-lg">Librería Papelito</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <ThemeToggle />
+              <div className="hidden sm:block">
+                <ThemeToggle />
+              </div>
               <NotificationBell />
-              <div className="text-sm text-muted-foreground">Usuario</div>
+              <div className="hidden text-sm text-muted-foreground md:block">Usuario</div>
             </div>
           </header>
           <main className="p-6">{children}</main>

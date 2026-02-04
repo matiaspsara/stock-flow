@@ -25,6 +25,7 @@ export default function POSPage() {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptModalData | null>(null);
   const [settings, setSettings] = useState<OrganizationSettings | null>(null);
+  const [isCompact, setIsCompact] = useState(false);
   const addItem = useCart((s) => s.addItem);
   const clearCart = useCart((s) => s.clearCart);
   const items = useCart((s) => s.items);
@@ -34,6 +35,15 @@ export default function POSPage() {
   const { data: popularProducts = [], isLoading: loadingPopular } = usePopularProducts();
   const createSale = useCreateSale();
   const createNotification = useCreateNotification();
+
+  useEffect(() => {
+    const check = () => {
+      setIsCompact(window.innerWidth < 1024);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -165,6 +175,23 @@ export default function POSPage() {
     if (popularProducts.length > 0) return popularProducts;
     return productsData?.data ?? [];
   }, [popularProducts, productsData]);
+
+  if (isCompact) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="max-w-md rounded-xl border border-border bg-background p-6 text-center">
+          <div className="text-3xl">📱</div>
+          <h2 className="mt-3 text-lg font-semibold">Punto de Venta optimizado para pantallas grandes</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            El Punto de Venta está optimizado para tablets y computadoras. Por favor usa un dispositivo más grande para la mejor experiencia.
+          </p>
+          <Button asChild className="mt-4">
+            <a href="/sales">Ver ventas</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6">

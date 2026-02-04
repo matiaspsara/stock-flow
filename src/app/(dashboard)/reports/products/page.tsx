@@ -33,7 +33,7 @@ export default function ProductReportPage() {
         {isLoading ? (
           <TableSkeleton columns={8} rows={8} />
         ) : (
-          <Table>
+          <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Producto</TableHead>

@@ -69,7 +69,7 @@ export default function SalesReportPage() {
         {isLoading ? (
           <TableSkeleton columns={4} rows={8} />
         ) : (
-          <Table>
+          <Table className="min-w-[640px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Venta</TableHead>

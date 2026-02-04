@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -16,14 +17,20 @@ export function MobileNav() {
           aria-label="Abrir menú"
         >
           <Menu className="h-5 w-5" />
-          <span>Menú</span>
+          <span className="hidden sm:inline">Menú</span>
         </button>
       </DialogTrigger>
-      <DialogContent className="h-full w-full max-w-none p-4 sm:max-w-sm">
+      <DialogContent className="inset-0 h-full w-full max-w-none translate-x-0 translate-y-0 content-start rounded-none p-4 sm:max-w-sm sm:rounded-lg">
         <DialogHeader>
           <DialogTitle>StockFlow</DialogTitle>
         </DialogHeader>
-        <DashboardNav className="mt-2" onNavigate={() => setOpen(false)} />
+        <div className="mt-1 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Tema</span>
+            <ThemeToggle />
+          </div>
+          <DashboardNav onNavigate={() => setOpen(false)} className="gap-0" />
+        </div>
       </DialogContent>
     </Dialog>
   );

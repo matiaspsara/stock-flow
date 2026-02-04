@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { DateRange } from "@/hooks/useDateRange";
 
 const presets: { label: string; days: number | "month" | "today" }[] = [
@@ -20,6 +21,7 @@ export function DateRangeSelector({
 }) {
   const [from, setFrom] = useState(value.from);
   const [to, setTo] = useState(value.to);
+  const [open, setOpen] = useState(false);
 
   const applyPreset = (preset: typeof presets[number]) => {
     const today = new Date();
@@ -42,14 +44,14 @@ export function DateRangeSelector({
 
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center">
-      <div className="flex flex-wrap gap-2">
+      <div className="hidden flex-wrap gap-2 md:flex">
         {presets.map((preset) => (
           <Button key={preset.label} variant="outline" onClick={() => applyPreset(preset)}>
             {preset.label}
           </Button>
         ))}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="hidden items-center gap-2 md:flex">
         <input
           type="date"
           value={from}
@@ -57,7 +59,7 @@ export function DateRangeSelector({
             setFrom(event.target.value);
             onChange({ from: event.target.value, to });
           }}
-          className="h-9 rounded-md border border-input px-3 text-sm"
+          className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground dark:[color-scheme:dark]"
         />
         <span className="text-sm text-muted-foreground">→</span>
         <input
@@ -67,8 +69,60 @@ export function DateRangeSelector({
             setTo(event.target.value);
             onChange({ from, to: event.target.value });
           }}
-          className="h-9 rounded-md border border-input px-3 text-sm"
+          className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground dark:[color-scheme:dark]"
         />
+      </div>
+
+      <div className="md:hidden">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="w-full">
+              Rango de fechas
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Selecciona un rango</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-3">
+              <div className="flex flex-wrap gap-2">
+                {presets.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant="outline"
+                    onClick={() => {
+                      applyPreset(preset);
+                      setOpen(false);
+                    }}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+              <div className="grid gap-2">
+                <input
+                  type="date"
+                  value={from}
+                  onChange={(event) => {
+                    setFrom(event.target.value);
+                    onChange({ from: event.target.value, to });
+                  }}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground dark:[color-scheme:dark]"
+                />
+                <input
+                  type="date"
+                  value={to}
+                  onChange={(event) => {
+                    setTo(event.target.value);
+                    onChange({ from, to: event.target.value });
+                  }}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground dark:[color-scheme:dark]"
+                />
+              </div>
+              <Button onClick={() => setOpen(false)}>Listo</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
